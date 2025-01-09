@@ -1,0 +1,32 @@
+CREATE TABLE usuarios (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    login VARCHAR(150) UNIQUE NOT NULL,
+    password VARCHAR(300) NOT NULL,
+    perfil VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE cursos (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    categoria VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE topicos (
+    id SERIAL PRIMARY KEY,
+    titulo VARCHAR(200) NOT NULL,
+    mensaje TEXT NOT NULL,
+    fechaCreacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status VARCHAR(10) NOT NULL DEFAULT 'ABIERTO',
+    autor INT NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+    curso INT REFERENCES cursos(id) ON DELETE SET NULL
+);
+
+CREATE TABLE respuestas (
+    id SERIAL PRIMARY KEY,
+    mensaje TEXT NOT NULL,
+    fechaCreacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    topico INT NOT NULL REFERENCES topicos(id) ON DELETE CASCADE,
+    autor INT NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+    solucion BOOLEAN DEFAULT FALSE
+);
