@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 
 @Table(name = "cursos")
 @Entity(name = "Medico")
-@NoArgsConstructor
 @EqualsAndHashCode(of = "id")
 public class Curso {
     @Id
@@ -17,9 +16,21 @@ public class Curso {
     @Enumerated(EnumType.STRING)
     private Categorias categoria;
 
+    public Curso() {
+    }
+
     public Curso(String nombre, Categorias categoria) {
         this.nombre = nombre;
         this.categoria = categoria;
+    }
+
+    public void actualizarDatos(DTOActualizarCurso actualizarCurso) {
+        if(actualizarCurso.nombre() != null){
+            this.nombre = actualizarCurso.nombre();
+        }
+        if(actualizarCurso.categoria() != null){
+            this.categoria = actualizarCurso.categoria();
+        }
     }
 
     public Long getId() {

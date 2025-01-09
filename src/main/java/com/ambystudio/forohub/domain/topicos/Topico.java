@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 
 @Table(name = "topicos")
 @Entity(name = "Topico")
-@NoArgsConstructor
 @EqualsAndHashCode(of = "id")
 public class Topico {
     @Id
@@ -22,6 +21,9 @@ public class Topico {
     private Integer autor; //Foraneo
     private Integer curso; //Foraneo
 
+    public Topico() {
+    }
+
     public Topico(String titulo, String mensaje, LocalDateTime fechacreacion, Integer autor, Integer curso) {
         this.titulo = titulo;
         this.mensaje = mensaje;
@@ -33,6 +35,18 @@ public class Topico {
     @PrePersist
     public void prePersist() {
         this.status = this.status == null ? "ABIERTO" : this.status;
+    }
+
+    public void actualizarDatos(DTOActualizarTopico actualizarTopico) {
+        if(actualizarTopico.titulo() != null){
+            this.titulo = actualizarTopico.titulo();
+        }
+        if(actualizarTopico.mensaje() != null){
+            this.mensaje = actualizarTopico.mensaje();
+        }
+        if(actualizarTopico.curso() != null){
+            this.curso = actualizarTopico.curso();
+        }
     }
 
     public Long getId() {

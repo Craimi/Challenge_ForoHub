@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 
 @Table(name = "usuarios")
 @Entity(name = "Usuario")
-@NoArgsConstructor
 @EqualsAndHashCode(of = "id")
 public class Usuario {
     @Id
@@ -19,11 +18,20 @@ public class Usuario {
     @Enumerated(EnumType.STRING)
     private Perfil perfil;
 
+    public Usuario() {
+    }
+
     public Usuario(String nombre, String login, String password, Perfil perfil) {
         this.nombre = nombre;
         this.login = login;
         this.password = password;
         this.perfil = perfil;
+    }
+
+    public void actualizarDatos(DTOActualizarUsuario actualizarUsuario) {
+        if(actualizarUsuario.nombre() != null){
+            this.nombre = actualizarUsuario.nombre();
+        }
     }
 
     public Long getId() {
