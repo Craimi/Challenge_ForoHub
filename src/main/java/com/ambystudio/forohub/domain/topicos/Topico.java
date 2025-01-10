@@ -1,6 +1,7 @@
 package com.ambystudio.forohub.domain.topicos;
 
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
@@ -30,6 +31,10 @@ public class Topico {
         this.fechacreacion = fechacreacion;
         this.autor = autor;
         this.curso = curso;
+    }
+
+    public Topico(@Valid DTORegistroTopico registroTopico) {
+        this(registroTopico.titulo(), registroTopico.mensaje(), LocalDateTime.now(), registroTopico.autor(), registroTopico.curso());
     }
 
     @PrePersist

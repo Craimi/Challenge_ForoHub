@@ -1,6 +1,7 @@
 package com.ambystudio.forohub.domain.usuarios;
 
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
@@ -26,6 +27,10 @@ public class Usuario {
         this.login = login;
         this.password = password;
         this.perfil = perfil;
+    }
+
+    public Usuario(@Valid DTORegistroUsuario registroUsuario) {
+        this(registroUsuario.nombre(), registroUsuario.login(), registroUsuario.password(), registroUsuario.perfil());
     }
 
     public void actualizarDatos(DTOActualizarUsuario actualizarUsuario) {

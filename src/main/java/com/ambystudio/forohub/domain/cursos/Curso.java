@@ -1,6 +1,7 @@
 package com.ambystudio.forohub.domain.cursos;
 
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
@@ -22,6 +23,10 @@ public class Curso {
     public Curso(String nombre, Categorias categoria) {
         this.nombre = nombre;
         this.categoria = categoria;
+    }
+
+    public Curso(@Valid DTORegistroCurso registroCurso) {
+        this(registroCurso.nombre(), registroCurso.categoria());
     }
 
     public void actualizarDatos(DTOActualizarCurso actualizarCurso) {

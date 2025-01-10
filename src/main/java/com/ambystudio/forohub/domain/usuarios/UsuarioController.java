@@ -8,8 +8,11 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,47 +31,50 @@ public class UsuarioController {
 
     //Detallado de un usuario especifico
     @GetMapping("/{id}")
-    public Optional<DTOListarUsuario> detallarUsuario(@PathVariable Long id) {
-        return usuarioRepository.findById(id).stream().map(DTOListarUsuario::new).findFirst();
+    public ResponseEntity<Optional<DTOListarUsuario>> detallarUsuario(@PathVariable Long id) {
+        if(usuarioRepository.existsById(id)){
+            return ResponseEntity.ok(usuarioRepository.findById(id).stream().map(DTOListarUsuario::new).findFirst());
+        }
+        else{
+            return ResponseEntity.notFound().build();
+        }
     }
 
     //Registrar un usuario
     @PostMapping
-    public Usuario registrarUsuario(@RequestBody @Valid DTORegistroUsuario registroUsuario){
-        Usuario usuario = new Usuario(
-                registroUsuario.nombre(),
-                registroUsuario.login(),
-                registroUsuario.password(),
-                registroUsuario.perfil()
-        );
+    public ResponseEntity<DTORespuestaUsuario> registrarUsuario(@RequestBody @Valid DTORegistroUsuario registroUsuario, UriComponentsBuilder uriComponentsBuilder){
+        Usuario usuario = usuarioRepository.save(new Usuario(registroUsuario));
 
-        usuarioRepository.save(usuario);
+        DTORespuestaUsuario respuestaUsuario = new DTORespuestaUsuario(usuario.getNombre());
 
-        return usuario;
+        URI url = uriComponentsBuilder.path("/usuarios/{id}").buildAndExpand(usuario.getId()).toUri();
+
+        return ResponseEntity.created(url).body(respuestaUsuario);
     }
 
     //Actualizar los valores de un usuario
     @PutMapping("/{id}")
-    @Transactional
-    public void actualizarUsuario(@PathVariable Long id, @RequestBody DTOActualizarUsuario actualizarUsuario){
+//    @Transactional
+    public ResponseEntity actualizarUsuario(@PathVariable Long id, @RequestBody DTOActualizarUsuario actualizarUsuario){
         if(usuarioRepository.findById(id).isPresent()){
             Usuario usuario = usuarioRepository.getReferenceById(id);
             usuario.actualizarDatos(actualizarUsuario);
+            return ResponseEntity.ok(new DTORespuestaUsuario(usuario.getNombre()));
         }
         else{
-            System.out.println("Usuario no existe");
+            return ResponseEntity.notFound().build();
         }
     }
 
     //Eliminar un curso
     @DeleteMapping("/{id}")
-    public String eliminarUsuario(@PathVariable Long id){
+    public ResponseEntity eliminarUsuario(@PathVariable Long id){
         if(usuarioRepository.findById(id).isPresent()){
-            usuarioRepository.deleteById(id);
-            return "Usuario eliminado";
+//            usuarioRepository.deleteById(id);
+            return ResponseEntity.noContent().build();
         }
         else{
-            return "Usuario no existe";
+            return ResponseEntity.notFound().build();
         }
     }
 }
