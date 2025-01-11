@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class TokenService {
@@ -22,10 +24,11 @@ public class TokenService {
         try {
             Algorithm algorithm = Algorithm.HMAC256(apiSecret);
             return JWT.create()
-                    .withIssuer("volmed")
+                    .withIssuer("auth")
                     .withSubject(usuario.getLogin())
-                    .withClaim("id", usuario.getId())
-                    .withExpiresAt(generarFechaeExpirar())
+                    .withClaim("id", usuario.getId()) // Quiza sea util
+                    .withClaim("rol", usuario.getPerfil().name()) //No util, eliminar
+                    .withExpiresAt(fechaExpiracion())
                     .sign(algorithm);
         } catch (JWTCreationException exception){
             throw new RuntimeException();
@@ -41,7 +44,7 @@ public class TokenService {
         try {
             Algorithm algorithm = Algorithm.HMAC256(apiSecret);
             verifier = JWT.require(algorithm)
-                    .withIssuer("volmed")
+                    .withIssuer("auth")
                     .build()
                     .verify(token);
             verifier.getSubject();
@@ -54,7 +57,33 @@ public class TokenService {
         return verifier.getSubject();
     }
 
-    private Instant generarFechaeExpirar(){
+    public Map<String, Object> getClaim(String token){ // No util, eliminar
+
+        if(token == null){
+            throw new RuntimeException();
+        }
+        Map<String, Object> claims = new HashMap<>();
+        DecodedJWT verifier = null;
+        try {
+            Algorithm algorithm = Algorithm.HMAC256(apiSecret);
+            verifier = JWT.require(algorithm)
+                    .withIssuer("auth")
+                    .build()
+                    .verify(token);
+
+            claims.put("id", verifier.getClaim("id").asInt());
+            claims.put("rol", verifier.getClaim("rol").asString());
+
+        } catch (JWTVerificationException exception){
+            System.out.println(exception.toString());
+        }
+        if(verifier.getSubject() == null){
+            throw new RuntimeException("Verifier invalido");
+        }
+        return claims;
+    }
+
+    private Instant fechaExpiracion(){
         return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-05:00"));
     }
 }

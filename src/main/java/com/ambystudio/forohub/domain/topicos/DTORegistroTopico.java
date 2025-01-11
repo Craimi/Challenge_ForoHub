@@ -8,9 +8,7 @@ public record DTORegistroTopico(
         String titulo,
         @NotBlank(message = "Mensaje es obligatorio")
         String mensaje,
-        @NotNull(message = "Autor es obligatorio")
-        Integer autor,
         @NotNull(message = "Curso es obligatorio")
-        Integer curso
+        Long curso
 ) {
 }

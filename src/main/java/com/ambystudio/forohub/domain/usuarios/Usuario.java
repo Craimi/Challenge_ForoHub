@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import lombok.EqualsAndHashCode;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
@@ -19,28 +20,38 @@ public class Usuario implements UserDetails {
 
     private String nombre;
     private String login;
-    private String clave;
+    private String password;
     @Enumerated(EnumType.STRING)
     private Perfil perfil;
 
     public Usuario() {
     }
 
-    public Usuario(String nombre, String login, String clave, Perfil perfil) {
+    public Usuario(String nombre, String login, String password) {
         this.nombre = nombre;
         this.login = login;
-        this.clave = clave;
-        this.perfil = perfil;
+        this.password = password;
     }
 
     public Usuario(@Valid DTORegistroUsuario registroUsuario) {
-        this(registroUsuario.nombre(), registroUsuario.login(), registroUsuario.password(), registroUsuario.perfil());
+        this(registroUsuario.nombre(), registroUsuario.login(), registroUsuario.password());
     }
 
-    public void actualizarDatos(DTOActualizarUsuario actualizarUsuario) {
-        if(actualizarUsuario.nombre() != null){
-            this.nombre = actualizarUsuario.nombre();
+    public void actualizarDatos(DTOActualizarUsuarioMOD actualizarUsuarioMOD) {
+        if(actualizarUsuarioMOD.actualizarUsuario().nombre() != null){
+            this.nombre = actualizarUsuarioMOD.actualizarUsuario().nombre();
         }
+        if(actualizarUsuarioMOD.actualizarUsuario().login() != null){
+            this.login = actualizarUsuarioMOD.actualizarUsuario().login();
+        }
+        if(actualizarUsuarioMOD.perfil() != null){
+            this.perfil = actualizarUsuarioMOD.perfil();
+        }
+    }
+
+    @PrePersist
+    public void prePersist() {
+        this.perfil = this.perfil == null ? Perfil.USUARIO : this.perfil;
     }
 
     public Long getId() {
@@ -68,11 +79,11 @@ public class Usuario implements UserDetails {
     }
 
     public String getClave() {
-        return clave;
+        return password;
     }
 
     public void setClave(String clave) {
-        this.clave = clave;
+        this.password = clave;
     }
 
     public Perfil getPerfil() {
@@ -85,12 +96,12 @@ public class Usuario implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return List.of(new SimpleGrantedAuthority("ROLE_" + this.perfil.name()));
     }
 
     @Override
     public String getPassword() {
-        return clave;
+        return password;
     }
 
     @Override

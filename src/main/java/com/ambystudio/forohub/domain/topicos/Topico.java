@@ -19,13 +19,13 @@ public class Topico {
     private String mensaje;
     private LocalDateTime fechacreacion;
     private String status;
-    private Integer autor; //Foraneo
-    private Integer curso; //Foraneo
+    private Long autor; //Foraneo
+    private Long curso; //Foraneo
 
     public Topico() {
     }
 
-    public Topico(String titulo, String mensaje, LocalDateTime fechacreacion, Integer autor, Integer curso) {
+    public Topico(String titulo, String mensaje, LocalDateTime fechacreacion, Long autor, Long curso) {
         this.titulo = titulo;
         this.mensaje = mensaje;
         this.fechacreacion = fechacreacion;
@@ -33,8 +33,8 @@ public class Topico {
         this.curso = curso;
     }
 
-    public Topico(@Valid DTORegistroTopico registroTopico) {
-        this(registroTopico.titulo(), registroTopico.mensaje(), LocalDateTime.now(), registroTopico.autor(), registroTopico.curso());
+    public Topico(@Valid DTORegistroTopico registroTopico, Long autor) {
+        this(registroTopico.titulo(), registroTopico.mensaje(), LocalDateTime.now(), autor, registroTopico.curso());
     }
 
     @PrePersist
@@ -51,6 +51,9 @@ public class Topico {
         }
         if(actualizarTopico.curso() != null){
             this.curso = actualizarTopico.curso();
+        }
+        if(actualizarTopico.status() != null){
+            this.status = actualizarTopico.status();
         }
     }
 
@@ -94,19 +97,19 @@ public class Topico {
         this.status = status;
     }
 
-    public Integer getAutor() {
+    public Long getAutor() {
         return autor;
     }
 
-    public void setAutor(Integer autor) {
+    public void setAutor(Long autor) {
         this.autor = autor;
     }
 
-    public Integer getCurso() {
+    public Long getCurso() {
         return curso;
     }
 
-    public void setCurso(Integer curso) {
+    public void setCurso(Long curso) {
         this.curso = curso;
     }
 }

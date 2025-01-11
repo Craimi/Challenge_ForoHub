@@ -27,8 +27,9 @@ public class SecurityFilter extends OncePerRequestFilter{
         var authHeader = request.getHeader("Authorization");
         if(authHeader != null){
             var token = authHeader.replace("Bearer ", "");
-            System.out.println(token);
+            System.out.println(token); //Imprime el token
             System.out.println(tokenService.getSubject(token)); //Tiene sesion?
+            System.out.println(tokenService.getClaim(token));
             var subject = tokenService.getSubject(token);
             if(subject != null){
                 //Valido

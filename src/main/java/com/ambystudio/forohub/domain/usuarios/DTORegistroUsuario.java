@@ -11,8 +11,6 @@ public record DTORegistroUsuario(
         @Email
         String login,
         @NotBlank(message = "Password es obligatorio")
-        String password,
-        @NotNull(message = "Perfil es obligatorio y todo en MAYUS")
-        Perfil perfil
+        String password
 ) {
 }

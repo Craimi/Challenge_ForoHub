@@ -1,5 +1,6 @@
 package com.ambystudio.forohub.domain.cursos;
 
+import com.ambystudio.forohub.infra.security.RoleValidator;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,7 +8,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -22,13 +22,13 @@ public class CursoController {
     @Autowired
     private CursoRepository cursoRepository;
 
-    //Listado de todos los cursos
+    //Listado de todos los cursos (Todos los usuarios)
     @GetMapping
     public ResponseEntity<Page<DTOListarCurso>> listarCurso(@PageableDefault(sort = "categoria") Pageable pagina) {
         return ResponseEntity.ok(cursoRepository.findAll(pagina).map(DTOListarCurso::new));
     }
 
-    //Detallado de un curso especifico
+    //Detallado de un curso especifico (Todos los usuarios)
     @GetMapping("/{id}")
     public ResponseEntity<Optional<DTOListarCurso>> detallarCurso(@PathVariable Long id){
         if(cursoRepository.existsById(id)){
@@ -39,9 +39,13 @@ public class CursoController {
         }
     }
 
-    //Registrar un curso
+    //Registrar un curso (SOLO MODERADORES)
     @PostMapping
-    public ResponseEntity<DTORespuestaCurso> registrarCurso(@RequestBody @Valid DTORegistroCurso registroCurso, UriComponentsBuilder uriComponentsBuilder){
+    public ResponseEntity<?> registrarCurso(@RequestBody @Valid DTORegistroCurso registroCurso, UriComponentsBuilder uriComponentsBuilder){
+        if(!RoleValidator.esModerador()){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
         Curso curso = cursoRepository.save(new Curso(registroCurso));
 
         DTORespuestaCurso respuestaCurso = new DTORespuestaCurso(curso.getNombre(), curso.getCategoria());
@@ -51,29 +55,27 @@ public class CursoController {
         return ResponseEntity.created(url).body(respuestaCurso);
     }
 
-    //Actualizar los valores de un curso
+    //Actualizar los valores de un curso (SOLO MODERADORES)
     @PutMapping("/{id}")
 //    @Transactional
     public ResponseEntity actualizarCurso(@PathVariable Long id, @RequestBody DTOActualizarCurso actualizarCurso){
-        if(cursoRepository.existsById(id)){
-            Curso curso = cursoRepository.getReferenceById(id);
-            curso.actualizarDatos(actualizarCurso);
-            return ResponseEntity.ok(new DTORespuestaCurso(curso.getNombre(), curso.getCategoria()));
+        if(!RoleValidator.esModerador()){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        else{
-            return ResponseEntity.notFound().build();
-        }
+
+        Curso curso = cursoRepository.getReferenceById(id);
+        curso.actualizarDatos(actualizarCurso);
+        return ResponseEntity.ok(new DTORespuestaCurso(curso.getNombre(), curso.getCategoria()));
     }
 
-    //Eliminar un curso
+    //Eliminar un curso (SOLO MODERADORES)
     @DeleteMapping("/{id}")
     public ResponseEntity eliminarCurso(@PathVariable Long id){
-        if(cursoRepository.existsById(id)){
-//            cursoRepository.deleteById(id);
-            return ResponseEntity.noContent().build();
+        if(!RoleValidator.esModerador()){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        else{
-            return ResponseEntity.notFound().build();
-        }
+
+//        cursoRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 }
