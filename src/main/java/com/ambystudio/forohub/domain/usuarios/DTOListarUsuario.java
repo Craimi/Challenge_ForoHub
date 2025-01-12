@@ -1,9 +1,9 @@
 package com.ambystudio.forohub.domain.usuarios;
 
-public record DTOListarUsuario(String nombre) {
+public record DTOListarUsuario(String nombre, String login, Perfil perfil) {
 
     public DTOListarUsuario (Usuario usuario){
-        this(usuario.getNombre());
+        this(usuario.getNombre(), usuario.getLogin(), usuario.getPerfil());
     }
 
 }

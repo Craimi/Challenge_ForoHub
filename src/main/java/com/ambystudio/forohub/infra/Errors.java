@@ -9,6 +9,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import java.lang.NullPointerException;
 
 @RestControllerAdvice
 public class Errors {
@@ -35,6 +36,11 @@ public class Errors {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity ErrorEnumIncompleto(HttpMessageNotReadableException e){
         return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getLocalizedMessage());
+    }
+
+    @ExceptionHandler(NullPointerException.class)
+    public ResponseEntity<String> ErrorJSONFaltante(NullPointerException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El JSON entrante debe incluir el parametro `actualizarUsuario` aun si este se encuentra vacio");
     }
 
     private record DatosErrorValidacion(String campo, String error){

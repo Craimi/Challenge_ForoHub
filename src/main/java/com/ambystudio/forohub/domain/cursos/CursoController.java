@@ -26,7 +26,7 @@ public class CursoController {
     @GetMapping
     public ResponseEntity<Page<DTOListarCurso>> listarCurso(@PageableDefault(sort = "categoria") Pageable pagina) {
         return ResponseEntity.ok(cursoRepository.findAll(pagina).map(DTOListarCurso::new));
-    }
+    } //Completo
 
     //Detallado de un curso especifico (Todos los usuarios)
     @GetMapping("/{id}")
@@ -37,15 +37,11 @@ public class CursoController {
         else{
             return ResponseEntity.notFound().build();
         }
-    }
+    } //Completo
 
     //Registrar un curso (SOLO MODERADORES)
     @PostMapping
-    public ResponseEntity<?> registrarCurso(@RequestBody @Valid DTORegistroCurso registroCurso, UriComponentsBuilder uriComponentsBuilder){
-        if(!RoleValidator.esModerador()){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-
+    public ResponseEntity<DTORespuestaCurso> registrarCurso(@RequestBody @Valid DTORegistroCurso registroCurso, UriComponentsBuilder uriComponentsBuilder){
         Curso curso = cursoRepository.save(new Curso(registroCurso));
 
         DTORespuestaCurso respuestaCurso = new DTORespuestaCurso(curso.getNombre(), curso.getCategoria());
@@ -53,29 +49,21 @@ public class CursoController {
         URI url = uriComponentsBuilder.path("/cursos/{id}").buildAndExpand(curso.getId()).toUri();
 
         return ResponseEntity.created(url).body(respuestaCurso);
-    }
+    } //Completo
 
     //Actualizar los valores de un curso (SOLO MODERADORES)
     @PutMapping("/{id}")
-//    @Transactional
-    public ResponseEntity actualizarCurso(@PathVariable Long id, @RequestBody DTOActualizarCurso actualizarCurso){
-        if(!RoleValidator.esModerador()){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-
+    @Transactional
+    public ResponseEntity<DTORespuestaCurso> actualizarCurso(@PathVariable Long id, @RequestBody DTOActualizarCurso actualizarCurso){
         Curso curso = cursoRepository.getReferenceById(id);
         curso.actualizarDatos(actualizarCurso);
         return ResponseEntity.ok(new DTORespuestaCurso(curso.getNombre(), curso.getCategoria()));
-    }
+    } //Completo
 
     //Eliminar un curso (SOLO MODERADORES)
     @DeleteMapping("/{id}")
-    public ResponseEntity eliminarCurso(@PathVariable Long id){
-        if(!RoleValidator.esModerador()){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-
-//        cursoRepository.deleteById(id);
+    public ResponseEntity<?> eliminarCurso(@PathVariable Long id){
+        cursoRepository.deleteById(id);
         return ResponseEntity.noContent().build();
-    }
+    } //Completo
 }

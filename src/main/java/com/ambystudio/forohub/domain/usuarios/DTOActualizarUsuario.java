@@ -5,5 +5,6 @@ import jakarta.validation.constraints.Email;
 public record DTOActualizarUsuario(
         String nombre,
         @Email
-        String login
-) { }
+        String login) {
+
+}

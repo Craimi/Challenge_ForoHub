@@ -3,7 +3,6 @@ package com.ambystudio.forohub.domain.topicos;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 

@@ -24,60 +24,45 @@ public class UsuarioController {
     //Listado de todos los usuarios (SOLO MODERADORES)
     @GetMapping
     public ResponseEntity<Page<DTOListarUsuario>> listarUsuario(Pageable pagina) {
-        if(!RoleValidator.esModerador()){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-
         return ResponseEntity.ok(usuarioRepository.findAll(pagina).map(DTOListarUsuario::new));
-    }
+    } //Completo
 
     //Detallado de un usuario especifico (SOLO MODERADORES)
     @GetMapping("/{id}")
     public ResponseEntity<Optional<DTOListarUsuario>> detallarUsuario(@PathVariable Long id) {
-        if(!RoleValidator.esModerador()){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-
         if(!usuarioRepository.existsById(id)){
             return ResponseEntity.notFound().build();
         }
 
         return ResponseEntity.ok(usuarioRepository.findById(id).stream().map(DTOListarUsuario::new).findFirst());
-    }
+    } //Completo
 
-    //Registrar un usuario (Todos los usuarios)
+    //Registrar un usuario (Todos los usuarios (Incluso sin autenticar))
     @PostMapping
     public ResponseEntity<DTORespuestaUsuario> registrarUsuario(@RequestBody @Valid DTORegistroUsuario registroUsuario, UriComponentsBuilder uriComponentsBuilder){
         Usuario usuario = usuarioRepository.save(new Usuario(registroUsuario));
 
-        DTORespuestaUsuario respuestaUsuario = new DTORespuestaUsuario(usuario.getNombre(), usuario.getLogin(), usuario.getClave(), usuario.getPerfil());
+        DTORespuestaUsuario respuestaUsuario = new DTORespuestaUsuario(usuario.getNombre(), usuario.getLogin(), usuario.getPerfil());
 
         URI url = uriComponentsBuilder.path("/usuarios/{id}").buildAndExpand(usuario.getId()).toUri();
 
         return ResponseEntity.created(url).body(respuestaUsuario);
-    }
+    } //Completo
 
-    //Actualizar los valores de un usuario (SOLO MODERADORES [Por ahora])
+    //Actualizar los valores de un usuario (SOLO MODERADORES)
     @PutMapping("/{id}")
-//    @Transactional
-    public ResponseEntity actualizarUsuario(@PathVariable Long id, @RequestBody DTOActualizarUsuarioMOD actualizarUsuarioMOD){
-        if(!RoleValidator.esModerador()){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-
+    @Transactional
+    public ResponseEntity<DTORespuestaUsuario> actualizarUsuario(@PathVariable Long id, @RequestBody DTOActualizarUsuarioMOD actualizarUsuarioMOD){
+        System.out.println(actualizarUsuarioMOD.toString());
         Usuario usuario = usuarioRepository.getReferenceById(id);
         usuario.actualizarDatos(actualizarUsuarioMOD);
-        return ResponseEntity.ok(new DTORespuestaUsuario(usuario.getNombre(), usuario.getLogin(), usuario.getClave(), usuario.getPerfil()));
-    }
+        return ResponseEntity.ok(new DTORespuestaUsuario(usuario.getNombre(), usuario.getLogin(), usuario.getPerfil()));
+    } //Completo
 
     //Eliminar un usuario (SOLO MODERADORES)
     @DeleteMapping("/{id}")
-    public ResponseEntity eliminarUsuario(@PathVariable Long id){
-        if(!RoleValidator.esModerador()){
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-
-//        usuarioRepository.deleteById(id);
+    public ResponseEntity<?> eliminarUsuario(@PathVariable Long id){
+        usuarioRepository.deleteById(id);
         return ResponseEntity.noContent().build();
-    }
+    } //Completo
 }

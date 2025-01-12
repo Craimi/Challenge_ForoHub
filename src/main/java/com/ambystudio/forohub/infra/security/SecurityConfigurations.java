@@ -27,12 +27,31 @@ public class SecurityConfigurations {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http.csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        return http.csrf(AbstractHttpConfigurer::disable) //Desabilita las cookies
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) //Aqui indicamos que la aplicacion es stateless
                 .authorizeHttpRequests((authorizeHttpRequest) -> authorizeHttpRequest
-                        .requestMatchers(HttpMethod.POST, "/login").permitAll()
+                        // Endpoints públicos
+                        .requestMatchers(HttpMethod.POST, "/login").permitAll() //Permite que cualquiera acceda al endpoint sin necesidad de autenticarse
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
-                        .anyRequest().authenticated())
+
+                        // Endpoints globales
+                        .requestMatchers(HttpMethod.PUT, "/**").hasRole("MODERADOR")
+                        .requestMatchers(HttpMethod.DELETE, "/**").hasRole("MODERADOR")
+
+                        // Curso endpoints
+                        .requestMatchers(HttpMethod.GET, "/cursos", "/cursos/{id}").authenticated() // GET accesible a todos los usuarios autenticados
+                        .requestMatchers(HttpMethod.POST, "/cursos").hasRole("MODERADOR") // POST solo para moderadores
+
+                        // Topico endpoints
+                        .requestMatchers(HttpMethod.GET, "/topicos", "/topicos/{id}").authenticated() // GET accesible a todos los usuarios autenticados
+                        .requestMatchers(HttpMethod.POST, "/topicos").authenticated() // POST accesible a todos los usuarios autenticados
+
+                        // Usuario endpoints
+                        .requestMatchers(HttpMethod.GET, "/usuarios", "/usuarios/{id}").hasRole("MODERADOR") // GET solo para moderadores
+                        .requestMatchers(HttpMethod.POST, "/usuarios").permitAll() // POST accesible a todos
+
+
+                        .anyRequest().authenticated()) //Cualquier solicitud no especificada arriba requiere autenticacion
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
