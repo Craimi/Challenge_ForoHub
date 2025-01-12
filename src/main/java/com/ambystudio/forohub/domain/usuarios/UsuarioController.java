@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -20,6 +21,9 @@ public class UsuarioController {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     //Listado de todos los usuarios (SOLO MODERADORES)
     @GetMapping
@@ -39,8 +43,10 @@ public class UsuarioController {
 
     //Registrar un usuario (Todos los usuarios (Incluso sin autenticar))
     @PostMapping
-    public ResponseEntity<DTORespuestaUsuario> registrarUsuario(@RequestBody @Valid DTORegistroUsuario registroUsuario, UriComponentsBuilder uriComponentsBuilder){
-        Usuario usuario = usuarioRepository.save(new Usuario(registroUsuario));
+    public ResponseEntity<?> registrarUsuario(@RequestBody @Valid DTORegistroUsuario registroUsuario, UriComponentsBuilder uriComponentsBuilder){
+        String password = passwordEncoder.encode(registroUsuario.password());
+
+        Usuario usuario = usuarioRepository.save(new Usuario(registroUsuario, password));
 
         DTORespuestaUsuario respuestaUsuario = new DTORespuestaUsuario(usuario.getNombre(), usuario.getLogin(), usuario.getPerfil());
 

@@ -33,8 +33,8 @@ public class Usuario implements UserDetails {
         this.password = password;
     }
 
-    public Usuario(@Valid DTORegistroUsuario registroUsuario) {
-        this(registroUsuario.nombre(), registroUsuario.login(), registroUsuario.password());
+    public Usuario(@Valid DTORegistroUsuario registroUsuario, String password) {
+        this(registroUsuario.nombre(), registroUsuario.login(), password);
     }
 
     public void actualizarDatos(DTOActualizarUsuarioMOD actualizarUsuarioMOD) {
