@@ -35,8 +35,8 @@ public class SecurityConfigurations {
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
 
                         // Endpoints globales
-                        .requestMatchers(HttpMethod.PUT, "/**").hasRole("MODERADOR")
-                        .requestMatchers(HttpMethod.DELETE, "/**").hasRole("MODERADOR")
+                        .requestMatchers(HttpMethod.PUT, "/**").hasRole("MODERADOR") // PUT solo para moderadores
+                        .requestMatchers(HttpMethod.DELETE, "/**").hasRole("MODERADOR") // DELETE solo para moderadores
 
                         // Curso endpoints
                         .requestMatchers(HttpMethod.GET, "/cursos", "/cursos/{id}").authenticated() // GET accesible a todos los usuarios autenticados
@@ -48,7 +48,7 @@ public class SecurityConfigurations {
 
                         // Usuario endpoints
                         .requestMatchers(HttpMethod.GET, "/usuarios", "/usuarios/{id}").hasRole("MODERADOR") // GET solo para moderadores
-                        .requestMatchers(HttpMethod.POST, "/usuarios").permitAll() // POST accesible a todos
+                        .requestMatchers(HttpMethod.POST, "/usuarios").permitAll() // POST accesible a todos sin necesidad de autenticarse
 
 
                         .anyRequest().authenticated()) //Cualquier solicitud no especificada arriba requiere autenticacion

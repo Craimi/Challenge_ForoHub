@@ -1,6 +1,7 @@
 package com.ambystudio.forohub.domain.usuarios;
 
 import com.ambystudio.forohub.infra.security.RoleValidator;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,12 +28,14 @@ public class UsuarioController {
 
     //Listado de todos los usuarios (SOLO MODERADORES)
     @GetMapping
+    @SecurityRequirement(name = "bearer-key")
     public ResponseEntity<Page<DTOListarUsuario>> listarUsuario(Pageable pagina) {
         return ResponseEntity.ok(usuarioRepository.findAll(pagina).map(DTOListarUsuario::new));
     } //Completo
 
     //Detallado de un usuario especifico (SOLO MODERADORES)
     @GetMapping("/{id}")
+    @SecurityRequirement(name = "bearer-key")
     public ResponseEntity<Optional<DTOListarUsuario>> detallarUsuario(@PathVariable Long id) {
         if(!usuarioRepository.existsById(id)){
             return ResponseEntity.notFound().build();
@@ -57,6 +60,7 @@ public class UsuarioController {
 
     //Actualizar los valores de un usuario (SOLO MODERADORES)
     @PutMapping("/{id}")
+    @SecurityRequirement(name = "bearer-key")
     @Transactional
     public ResponseEntity<DTORespuestaUsuario> actualizarUsuario(@PathVariable Long id, @RequestBody DTOActualizarUsuarioMOD actualizarUsuarioMOD){
         System.out.println(actualizarUsuarioMOD.toString());
@@ -67,6 +71,7 @@ public class UsuarioController {
 
     //Eliminar un usuario (SOLO MODERADORES)
     @DeleteMapping("/{id}")
+    @SecurityRequirement(name = "bearer-key")
     public ResponseEntity<?> eliminarUsuario(@PathVariable Long id){
         usuarioRepository.deleteById(id);
         return ResponseEntity.noContent().build();

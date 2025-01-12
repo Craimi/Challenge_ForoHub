@@ -4,6 +4,7 @@ import com.ambystudio.forohub.domain.respuestas.DTORegistroRespuesta;
 import com.ambystudio.forohub.domain.respuestas.Respuesta;
 import com.ambystudio.forohub.domain.usuarios.Usuario;
 import com.ambystudio.forohub.infra.security.RoleValidator;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/topicos")
+@SecurityRequirement(name = "bearer-key")
 public class TopicoController {
 
     @Autowired
