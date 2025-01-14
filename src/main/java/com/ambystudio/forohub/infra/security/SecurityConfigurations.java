@@ -46,6 +46,10 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.GET, "/topicos", "/topicos/{id}").authenticated() // GET accesible a todos los usuarios autenticados
                         .requestMatchers(HttpMethod.POST, "/topicos").authenticated() // POST accesible a todos los usuarios autenticados
 
+                        // Respuesta endpoints
+                        .requestMatchers(HttpMethod.GET, "topicos/{id}/respuestas", "topicos/{id}/respuestas/{idRespuesta}").authenticated()
+                        .requestMatchers(HttpMethod.POST, "topicos/{id}/respuestas").authenticated()
+
                         // Usuario endpoints
                         .requestMatchers(HttpMethod.GET, "/usuarios", "/usuarios/{id}").hasRole("MODERADOR") // GET solo para moderadores
                         .requestMatchers(HttpMethod.POST, "/usuarios").permitAll() // POST accesible a todos sin necesidad de autenticarse

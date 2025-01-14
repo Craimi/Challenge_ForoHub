@@ -1,7 +1,6 @@
 package com.ambystudio.forohub.domain.topicos;
 
-import com.ambystudio.forohub.domain.respuestas.DTORegistroRespuesta;
-import com.ambystudio.forohub.domain.respuestas.Respuesta;
+import com.ambystudio.forohub.domain.respuestas.*;
 import com.ambystudio.forohub.domain.usuarios.Usuario;
 import com.ambystudio.forohub.infra.security.RoleValidator;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -78,16 +77,74 @@ public class TopicoController {
         return ResponseEntity.noContent().build();
     } //Completo
 
-    @PostMapping("/{id}/respuesta")
-    public Respuesta agregarRespuesta(@PathVariable Long id, @RequestBody DTORegistroRespuesta registroRespuesta) {
-        Respuesta respuesta = new Respuesta(
-                registroRespuesta.mensaje(),
-                LocalDateTime.now(),
-                id,
-                null
-        );
+    //Respuesta Controller
 
-        return respuesta;
-//        respuestaRepository.save(respuesta);
-    }
+    @Autowired
+    private RespuestaRepository respuestaRepository;
+
+    //Listado de respuestas (Todos los usuarios)
+    @GetMapping("/{id}/respuestas")
+    public ResponseEntity<Page<DTOListarRespuesta>> listarRespuesta(@PageableDefault(sort = "fechacreacion") Pageable pagina) {
+        return ResponseEntity.ok(respuestaRepository.findAll(pagina).map(DTOListarRespuesta::new));
+    } //Completo
+
+    //Detallado de una respuesta (Todos los usuarios)
+    @GetMapping("/{id}/respuestas/{idRespuesta}")
+    public ResponseEntity<Optional<DTOListarRespuesta>> detallarRespuesta(@PathVariable Long id, @PathVariable Long idRespuesta) {
+        if (!topicoRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Optional<Respuesta> respuesta = respuestaRepository.findByTopicoAndId(id, idRespuesta);
+
+        if (respuesta.isPresent()) {
+            return ResponseEntity.ok(respuestaRepository.findByTopicoAndId(id, idRespuesta).stream().map(DTOListarRespuesta::new).findFirst());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    } //Completo
+
+    //Registrar una respuesta (Todos los usuarios)
+    @PostMapping("/{id}/respuestas")
+    public ResponseEntity<DTORespuesta> agregarRespuesta(@PathVariable Long id, @RequestBody DTORegistroRespuesta registroRespuesta, UriComponentsBuilder uriComponentsBuilder) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long usuarioId = ((Usuario) authentication.getPrincipal()).getId();
+
+        Respuesta respuesta = respuestaRepository.save(new Respuesta(registroRespuesta, id, usuarioId));
+
+        DTORespuesta respuestaConsulta = new DTORespuesta(respuesta.getMensaje(), respuesta.getFechaCreacion(), respuesta.getTopico(), respuesta.getAutor(), respuesta.getSolucion());
+
+        URI url = uriComponentsBuilder.path("/{id}/{idRespuesta}").buildAndExpand(id ,respuesta.getId()).toUri();
+
+        return ResponseEntity.created(url).body(respuestaConsulta);
+    } //Completo
+
+    //Actualizar los valores de una respuesta (SOLO MODERADORES)
+    @PutMapping("/{id}/respuestas/{idRespuesta}")
+    @Transactional
+    public ResponseEntity<DTORespuesta> actualizarRespuesta(@PathVariable Long id, @PathVariable Long idRespuesta, @RequestBody DTOActualizarRespuesta actualizarRespuesta){
+        if (!topicoRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Respuesta respuesta = respuestaRepository.findByTopicoAndId(id, idRespuesta).get();
+        respuesta.actualizarDatos(actualizarRespuesta);
+        return ResponseEntity.ok(new DTORespuesta(respuesta.getMensaje(), respuesta.getFechaCreacion(), respuesta.getTopico(), respuesta.getAutor(), respuesta.getSolucion()));
+    } //Completo
+
+    //Eliminar una respuesta (SOLO MODERADORES)
+    @DeleteMapping("/{id}/respuestas/{idRespuesta}")
+    public ResponseEntity<?> eliminarRespuesta(@PathVariable Long id, @PathVariable Long idRespuesta){
+        if (!topicoRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        Optional<Respuesta> respuestaOptional = respuestaRepository.findByTopicoAndId(id, idRespuesta);
+
+        if (respuestaOptional.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        respuestaRepository.deleteById(idRespuesta);
+
+        return ResponseEntity.noContent().build();
+    } //Completo
 }

@@ -10,6 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.lang.NullPointerException;
+import java.util.NoSuchElementException;
 
 @RestControllerAdvice
 public class Errors {
@@ -39,8 +40,13 @@ public class Errors {
     }
 
     @ExceptionHandler(NullPointerException.class)
-    public ResponseEntity<String> ErrorJSONFaltante(NullPointerException ex) {
+    public ResponseEntity<String> ErrorJSONFaltante(NullPointerException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El JSON entrante debe incluir el parametro `actualizarUsuario` aun si este se encuentra vacio");
+    }
+
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<String> ErrorSinValor(NoSuchElementException e){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No existe el ID");
     }
 
     private record DatosErrorValidacion(String campo, String error){

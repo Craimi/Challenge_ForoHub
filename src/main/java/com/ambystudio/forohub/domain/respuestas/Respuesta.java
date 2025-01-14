@@ -1,5 +1,6 @@
 package com.ambystudio.forohub.domain.respuestas;
 
+import com.ambystudio.forohub.domain.topicos.DTOActualizarTopico;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -16,16 +17,36 @@ public class Respuesta {
     private Long id;
 
     private String mensaje;
-    private LocalDateTime fechaCreacion;
+    private LocalDateTime fechacreacion;
     private Long topico; //Foraneo
-    private Integer autor; //Foraneo
+    private Long autor; //Foraneo
     private Boolean solucion;
 
-    public Respuesta(String mensaje, LocalDateTime fechaCreacion, Long topico, Integer autor) {
-        this.mensaje = mensaje;
-        this.fechaCreacion = fechaCreacion;
-        this.topico = topico;
-        this.autor = autor;
+    public Respuesta() {
+    }
+
+    public Respuesta(DTORegistroRespuesta registroRespuesta, Long id, Long usuarioId) {
+        this.mensaje = registroRespuesta.mensaje();
+        this.fechacreacion = LocalDateTime.now();
+        this.topico = id;
+        this.autor = usuarioId;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        this.solucion = this.solucion == null ? Boolean.FALSE : this.solucion;
+    }
+
+    public void actualizarDatos(DTOActualizarRespuesta actualizarRespuesta) {
+        if(actualizarRespuesta.mensaje() != null){
+            this.mensaje = actualizarRespuesta.mensaje();
+        }
+        if(actualizarRespuesta.topico() != null){
+            this.topico = actualizarRespuesta.topico();
+        }
+        if(actualizarRespuesta.solucion() != null){
+            this.solucion = actualizarRespuesta.solucion();
+        }
     }
 
     public Long getId() {
@@ -45,11 +66,11 @@ public class Respuesta {
     }
 
     public LocalDateTime getFechaCreacion() {
-        return fechaCreacion;
+        return fechacreacion;
     }
 
     public void setFechaCreacion(LocalDateTime fechaCreacion) {
-        this.fechaCreacion = fechaCreacion;
+        this.fechacreacion = fechaCreacion;
     }
 
     public Long getTopico() {
@@ -60,11 +81,11 @@ public class Respuesta {
         this.topico = topico;
     }
 
-    public Integer getAutor() {
+    public Long getAutor() {
         return autor;
     }
 
-    public void setAutor(Integer autor) {
+    public void setAutor(Long autor) {
         this.autor = autor;
     }
 
