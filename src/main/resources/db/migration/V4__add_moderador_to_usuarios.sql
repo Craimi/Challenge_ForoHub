@@ -1,0 +1,1 @@
+INSERT INTO usuarios (nombre, login, password, perfil) VALUES ('admin', 'admin@forohub.com', '$2a$10$Y705Pz38pCJHMl024KuXoueLrfeWUbpZnDuh1TScGfXm2rbZa3urm', 'MODERADOR');
